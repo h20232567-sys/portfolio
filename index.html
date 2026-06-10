@@ -1,0 +1,294 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>이현창 — 3D Product Artist</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=Playfair+Display:wght@400;700&display=swap" rel="stylesheet">
+<style>
+*, *::before, *::after { margin:0; padding:0; box-sizing:border-box; }
+:root {
+  --bg:#0a0a0a; --bg2:#111111; --bg3:#1a1a1a;
+  --accent:#c8a97e; --accent2:#e8d5b7;
+  --text:#e8e8e8; --muted:#888; --border:rgba(255,255,255,0.08);
+}
+html { scroll-behavior:smooth; }
+body { background:var(--bg); color:var(--text); font-family:"Inter",sans-serif; font-weight:300; overflow-x:hidden; cursor:none; }
+
+.cursor { width:8px; height:8px; background:var(--accent); border-radius:50%; position:fixed; top:0; left:0; pointer-events:none; z-index:9999; }
+.cursor-ring { width:36px; height:36px; border:1px solid rgba(200,169,126,0.5); border-radius:50%; position:fixed; top:0; left:0; pointer-events:none; z-index:9998; transition:width 0.3s,height 0.3s; }
+
+nav { position:fixed; top:0; width:100%; z-index:100; padding:24px 60px; display:flex; justify-content:space-between; align-items:center; transition:background 0.4s; }
+.logo { font-family:"Playfair Display",serif; font-size:1.1rem; letter-spacing:0.05em; color:var(--accent2); }
+.nav-links { display:flex; gap:36px; list-style:none; }
+.nav-links a { color:var(--muted); text-decoration:none; font-size:0.78rem; letter-spacing:0.14em; text-transform:uppercase; transition:color 0.3s; }
+.nav-links a:hover { color:var(--accent); }
+
+#hero { height:100vh; display:flex; align-items:center; justify-content:center; position:relative; overflow:hidden; text-align:center; }
+.hero-bg { position:absolute; inset:0; background:radial-gradient(ellipse 80% 60% at 50% 60%,rgba(200,169,126,0.07) 0%,transparent 70%); }
+.hero-grid { position:absolute; inset:0; background-image:linear-gradient(rgba(255,255,255,0.013) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,0.013) 1px,transparent 1px); background-size:80px 80px; }
+.hero-content { position:relative; z-index:2; }
+.hero-tag { display:inline-block; font-size:0.68rem; letter-spacing:0.28em; text-transform:uppercase; color:var(--accent); border:1px solid rgba(200,169,126,0.35); padding:7px 18px; border-radius:2px; margin-bottom:32px; }
+.hero-name { font-family:"Playfair Display",serif; font-size:clamp(4rem,11vw,9rem); font-weight:700; line-height:1; letter-spacing:-0.02em; background:linear-gradient(135deg,#ffffff 40%,var(--accent) 100%); -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text; margin-bottom:22px; }
+.hero-sub { font-size:0.82rem; letter-spacing:0.22em; text-transform:uppercase; color:var(--muted); }
+.hero-scroll { position:absolute; bottom:40px; left:50%; transform:translateX(-50%); display:flex; flex-direction:column; align-items:center; gap:8px; color:var(--muted); font-size:0.68rem; letter-spacing:0.18em; text-transform:uppercase; }
+.scroll-line { width:1px; height:50px; background:linear-gradient(to bottom,var(--accent),transparent); animation:pulse 2s ease-in-out infinite; }
+@keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.25} }
+
+section { padding:120px 60px; }
+.section-label { font-size:0.68rem; letter-spacing:0.28em; text-transform:uppercase; color:var(--accent); margin-bottom:14px; }
+.section-title { font-family:"Playfair Display",serif; font-size:clamp(2rem,4vw,3rem); font-weight:400; margin-bottom:56px; line-height:1.2; }
+
+#about { background:var(--bg2); }
+.about-grid { display:grid; grid-template-columns:1fr 1fr; gap:80px; max-width:1200px; margin:0 auto; align-items:start; }
+.about-text { font-size:0.97rem; line-height:1.95; color:#bbb; }
+.about-text p+p { margin-top:18px; }
+.tools-list { display:flex; flex-direction:column; gap:14px; margin-top:48px; }
+.tool-item { display:flex; align-items:center; gap:16px; padding:16px 20px; border:1px solid var(--border); border-radius:4px; background:var(--bg3); transition:border-color 0.3s,transform 0.3s; }
+.tool-item:hover { border-color:rgba(200,169,126,0.35); transform:translateX(7px); }
+.tool-icon { width:28px; height:28px; display:flex; align-items:center; justify-content:center; flex-shrink:0; }
+.tool-icon img { width:28px; height:28px; object-fit:contain; }
+.tool-name { font-size:0.85rem; color:var(--text); }
+.tool-desc { font-size:0.73rem; color:var(--muted); margin-top:2px; }
+
+/* IMAGE GRID */
+.img-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:3px; }
+.img-cell { position:relative; overflow:hidden; background:var(--bg3); cursor:pointer; aspect-ratio:3/4; }
+.img-cell img { width:100%; height:100%; object-fit:cover; display:block; filter:brightness(0.88); transition:transform 0.7s cubic-bezier(0.25,0.46,0.45,0.94),filter 0.5s; }
+.img-cell:hover img { transform:scale(1.06); filter:brightness(1.05); }
+.img-overlay { position:absolute; inset:0; background:linear-gradient(to top,rgba(0,0,0,0.82) 0%,transparent 55%); opacity:0; transition:opacity 0.4s; display:flex; align-items:flex-end; padding:26px; }
+.img-cell:hover .img-overlay { opacity:1; }
+.img-title { font-family:"Playfair Display",serif; font-size:1.05rem; margin-bottom:4px; }
+.img-cat { font-size:0.72rem; letter-spacing:0.16em; text-transform:uppercase; color:var(--accent); }
+
+/* VIDEO GRID */
+.vid-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:3px; }
+.vid-cell { position:relative; overflow:hidden; background:var(--bg3); cursor:pointer; aspect-ratio:9/16; }
+.vid-cell.wide { grid-column:span 2; aspect-ratio:16/9; }
+.vid-cell video { width:100%; height:100%; object-fit:cover; display:block; filter:brightness(0.85); transition:transform 0.7s cubic-bezier(0.25,0.46,0.45,0.94),filter 0.5s; }
+.vid-cell:hover video { transform:scale(1.04); filter:brightness(1.05); }
+.vid-overlay { position:absolute; inset:0; background:linear-gradient(to top,rgba(0,0,0,0.82) 0%,transparent 55%); opacity:0; transition:opacity 0.4s; display:flex; align-items:flex-end; padding:26px; }
+.vid-cell:hover .vid-overlay { opacity:1; }
+
+/* 유튜브 링크 셀 */
+.vid-cell.yt-link { text-decoration:none; display:block; }
+.vid-cell.yt-link .yt-thumb { width:100%; height:100%; object-fit:cover; display:block; filter:brightness(0.75); transition:transform 0.7s cubic-bezier(0.25,0.46,0.45,0.94),filter 0.5s; }
+.vid-cell.yt-link:hover .yt-thumb { transform:scale(1.04); filter:brightness(0.95); }
+.vid-cell.yt-link .vid-overlay { opacity:1; background:linear-gradient(to top,rgba(0,0,0,0.85) 0%,rgba(0,0,0,0.1) 60%); }
+.play-btn { position:absolute; top:50%; left:50%; transform:translate(-50%,-50%); width:64px; height:64px; background:rgba(200,169,126,0.9); border-radius:50%; display:flex; align-items:center; justify-content:center; transition:background 0.3s, transform 0.3s; }
+.vid-cell.yt-link:hover .play-btn { background:var(--accent2); transform:translate(-50%,-50%) scale(1.1); }
+.play-btn svg { margin-left:4px; }
+
+.vid-info { display:flex; align-items:flex-end; padding:26px; width:100%; }
+
+.img-title2 { font-family:"Playfair Display",serif; font-size:1.05rem; margin-bottom:4px; color:#fff; }
+.img-cat2 { font-size:0.72rem; letter-spacing:0.16em; text-transform:uppercase; color:var(--accent); }
+
+#contact { background:var(--bg2); text-align:center; }
+.contact-inner { max-width:600px; margin:0 auto; }
+.contact-desc { color:var(--muted); font-size:0.93rem; line-height:1.85; margin-bottom:48px; }
+.contact-links { display:flex; justify-content:center; gap:20px; flex-wrap:wrap; }
+.contact-btn { display:inline-flex; align-items:center; gap:10px; padding:14px 32px; border:1px solid var(--border); border-radius:2px; color:var(--text); text-decoration:none; font-size:0.78rem; letter-spacing:0.14em; text-transform:uppercase; transition:all 0.3s; background:var(--bg3); }
+.contact-btn.primary { background:var(--accent); color:#000; border-color:var(--accent); }
+.contact-btn.primary:hover { background:var(--accent2); border-color:var(--accent2); }
+
+footer { padding:30px 60px; border-top:1px solid var(--border); display:flex; justify-content:space-between; align-items:center; }
+footer p { font-size:0.73rem; color:var(--muted); }
+
+.reveal { opacity:0; transform:translateY(28px); transition:opacity 0.85s cubic-bezier(0.25,0.46,0.45,0.94),transform 0.85s cubic-bezier(0.25,0.46,0.45,0.94); }
+.reveal.visible { opacity:1; transform:translateY(0); }
+
+@media(max-width:900px){
+  nav{padding:18px 24px;} section{padding:80px 24px;}
+  .about-grid{grid-template-columns:1fr;gap:44px;}
+  .img-grid{grid-template-columns:1fr 1fr;}
+  .vid-grid{grid-template-columns:1fr 1fr;}
+  .vid-cell.wide{grid-column:span 1;aspect-ratio:9/16;}
+  footer{flex-direction:column;gap:10px;text-align:center;}
+}
+@media(max-width:600px){
+  .hero-name{font-size:3.2rem;} .nav-links{display:none;}
+  .img-grid,.vid-grid{grid-template-columns:1fr;}
+  .vid-cell.wide{grid-column:span 1;}
+}
+</style>
+</head>
+<body>
+
+<div class="cursor" id="cursor"></div>
+<div class="cursor-ring" id="cursorRing"></div>
+
+<nav id="mainNav">
+  <div class="logo">이현창</div>
+  <ul class="nav-links">
+    <li><a href="#about">About</a></li>
+    <li><a href="#images">Images</a></li>
+    <li><a href="#videos">Videos</a></li>
+    <li><a href="#contact">Contact</a></li>
+  </ul>
+</nav>
+
+<!-- HERO -->
+<section id="hero">
+  <div class="hero-bg"></div>
+  <div class="hero-grid"></div>
+  <div class="hero-content">
+    <div class="hero-tag">3D Product Artist</div>
+    <h1 class="hero-name">이현창</h1>
+    <p class="hero-sub">Blender &nbsp;·&nbsp; After Effects &nbsp;·&nbsp; DaVinci Resolve</p>
+  </div>
+  <div class="hero-scroll"><div class="scroll-line"></div><span>Scroll</span></div>
+</section>
+
+<!-- ABOUT -->
+<section id="about">
+  <div class="about-grid">
+    <div class="reveal">
+      <div class="section-label">About Me</div>
+      <h2 class="section-title">제품의 본질을<br>빛과 공간으로</h2>
+      <div class="about-text">
+        <p>저는 3D 렌더링과 시각적 스토리텔링을 통해 제품의 가치를 극대화하는 아티스트입니다.</p>
+        <p>향수, 신발, 도자기 등 다양한 제품군의 CGI 비주얼을 제작하며, 브랜드가 전달하고자 하는 감성을 정확하게 포착합니다.</p>
+        <p>빛의 굴절, 소재의 질감, 공간의 구성 — 모든 요소를 계산하여 실사와 구별하기 어려운 결과물을 만들어냅니다.</p>
+      </div>
+    </div>
+    <div class="reveal" style="transition-delay:0.18s;">
+      <div class="section-label">Tools &amp; Skills</div>
+      <div class="tools-list">
+        <div class="tool-item">
+          <div class="tool-icon"><img src="https://cdn.simpleicons.org/blender/EA7600" alt="Blender"></div>
+          <div><div class="tool-name">Blender</div><div class="tool-desc">3D Modeling · Rendering · Shading</div></div>
+        </div>
+        <div class="tool-item">
+          <div class="tool-icon"><img src="https://cdn.simpleicons.org/adobeaftereffects/9999FF" alt="After Effects"></div>
+          <div><div class="tool-name">After Effects</div><div class="tool-desc">Motion Graphics · Compositing</div></div>
+        </div>
+        <div class="tool-item">
+          <div class="tool-icon"><img src="https://cdn.simpleicons.org/davinciresolve/FFFFFF" alt="DaVinci Resolve"></div>
+          <div><div class="tool-name">DaVinci Resolve</div><div class="tool-desc">Color Grading · Video Editing</div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- IMAGES -->
+<section id="images" style="padding:0;">
+  <div style="padding:80px 60px 48px;" class="reveal">
+    <div class="section-label">Still Renders</div>
+    <h2 class="section-title">3D Image Works</h2>
+  </div>
+  <div class="img-grid">
+    <div class="img-cell reveal">
+      <img src="./images/byredo.png" alt="Byredo">
+      <div class="img-overlay"><div><div class="img-title">Byredo Mojave Ghost</div><div class="img-cat">Perfume · CGI Render</div></div></div>
+    </div>
+    <div class="img-cell reveal" style="transition-delay:0.1s;">
+      <img src="./images/ceramic.png" alt="Ceramic">
+      <div class="img-overlay"><div><div class="img-title">Blue &amp; White Ceramic</div><div class="img-cat">Product · CGI Render</div></div></div>
+    </div>
+    <div class="img-cell reveal" style="transition-delay:0.2s;">
+      <img src="./images/chanel.png" alt="Chanel">
+      <div class="img-overlay"><div><div class="img-title">Bleu de Chanel</div><div class="img-cat">Perfume · CGI Render</div></div></div>
+    </div>
+    <div class="img-cell reveal" style="transition-delay:0.05s;">
+      <img src="./images/salomon_dark.png" alt="Salomon Dark">
+      <div class="img-overlay"><div><div class="img-title">Salomon X Ultra — Dark</div><div class="img-cat">Footwear · CGI Render</div></div></div>
+    </div>
+    <div class="img-cell reveal" style="transition-delay:0.15s;">
+      <img src="./images/salomon_mountain.png" alt="Salomon Mountain">
+      <div class="img-overlay"><div><div class="img-title">Salomon X Ultra — Mountain</div><div class="img-cat">Footwear · CGI Render</div></div></div>
+    </div>
+    <div class="img-cell reveal" style="transition-delay:0.25s;">
+      <img src="./images/teapot.png" alt="Teapot">
+      <div class="img-overlay"><div><div class="img-title">Minimal Teapot Set</div><div class="img-cat">Product · CGI Render</div></div></div>
+    </div>
+  </div>
+</section>
+
+<!-- VIDEOS -->
+<section id="videos" style="padding:0; margin-top:3px;">
+  <div style="padding:80px 60px 48px;" class="reveal">
+    <div class="section-label">Motion Works</div>
+    <h2 class="section-title">3D Animation</h2>
+  </div>
+  <div class="vid-grid">
+
+    <!-- 로컬 영상 3개 -->
+    <div class="vid-cell reveal">
+      <video src="./videos/motion0001-0300.mp4" autoplay muted loop playsinline></video>
+      <div class="vid-overlay"><div><div class="img-title">Motion Render</div><div class="img-cat">3D Animation · Blender</div></div></div>
+    </div>
+
+    <div class="vid-cell reveal" style="transition-delay:0.1s;">
+      <video src="./videos/headphone realrrrr.mp4" autoplay muted loop playsinline></video>
+      <div class="vid-overlay"><div><div class="img-title">Headphone CGI</div><div class="img-cat">Product Render · Blender</div></div></div>
+    </div>
+
+    <div class="vid-cell reveal" style="transition-delay:0.2s;">
+      <video src="./videos/0001-0250.mp4" autoplay muted loop playsinline></video>
+      <div class="vid-overlay"><div><div class="img-title">Product Sequence</div><div class="img-cat">3D Animation · Blender</div></div></div>
+    </div>
+
+    <!-- 0001-0590 → 유튜브 링크 (클릭하면 유튜브로 이동) -->
+    <a href="https://youtube.com/shorts/lC8YfLgvQAE" target="_blank" class="vid-cell wide yt-link reveal" style="transition-delay:0.1s;">
+      <img class="yt-thumb" src="https://img.youtube.com/vi/lC8YfLgvQAE/maxresdefault.jpg" alt="Full CGI Showreel">
+      <div class="play-btn">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="#000"><path d="M8 5v14l11-7z"/></svg>
+      </div>
+      <div class="vid-overlay">
+        <div class="vid-info">
+          <div>
+            <div class="img-title2">Full CGI Showreel</div>
+            <div class="img-cat2">3D Product · Blender · After Effects &nbsp;▶ YouTube</div>
+          </div>
+        </div>
+      </div>
+    </a>
+
+  </div>
+</section>
+
+<!-- CONTACT -->
+<section id="contact">
+  <div class="contact-inner reveal">
+    <div class="section-label">Contact</div>
+    <h2 class="section-title">함께 작업해요</h2>
+    <p class="contact-desc">제품 CGI 렌더링, 브랜드 비주얼, 모션 그래픽 등<br>다양한 협업을 언제든지 환영합니다.</p>
+    <div class="contact-links">
+      <a href="https://www.instagram.com/spear._l/" target="_blank" class="contact-btn primary">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z"/></svg>
+        @spear._l
+      </a>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <p>© 2025 이현창 — 3D Product Artist</p>
+  <p>Built with passion &amp; Blender</p>
+</footer>
+
+<script>
+const cursor = document.getElementById("cursor");
+const ring = document.getElementById("cursorRing");
+let mx=0,my=0,rx=0,ry=0;
+document.addEventListener("mousemove",e=>{ mx=e.clientX; my=e.clientY; cursor.style.transform=`translate(${mx-4}px,${my-4}px)`; });
+(function animRing(){ rx+=(mx-rx)*0.12; ry+=(my-ry)*0.12; ring.style.transform=`translate(${rx-18}px,${ry-18}px)`; requestAnimationFrame(animRing); })();
+document.querySelectorAll("a,.img-cell,.vid-cell").forEach(el=>{
+  el.addEventListener("mouseenter",()=>{ ring.style.width="58px"; ring.style.height="58px"; });
+  el.addEventListener("mouseleave",()=>{ ring.style.width="36px"; ring.style.height="36px"; });
+});
+const obs=new IntersectionObserver(entries=>{
+  entries.forEach(e=>{ if(e.isIntersecting) e.target.classList.add("visible"); });
+},{threshold:0.08});
+document.querySelectorAll(".reveal").forEach(el=>obs.observe(el));
+const nav=document.getElementById("mainNav");
+window.addEventListener("scroll",()=>{
+  if(window.scrollY>60){ nav.style.background="rgba(10,10,10,0.95)"; nav.style.backdropFilter="blur(14px)"; }
+  else { nav.style.background="transparent"; nav.style.backdropFilter="none"; }
+});
+</script>
+</body>
+</html>
